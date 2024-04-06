@@ -13,10 +13,7 @@ const eventSchema = new Schema(
     },
     description: { type: String },
 
-    participants: {
-      [{ type: Schema.Types.ObjectId, ref: User }],
-      maxlength: 8
-    },
+   
 
     results: { type: [Object] }
 
