@@ -24,15 +24,16 @@ const userSchema = new Schema(
       type: String,
       default: "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg"
     },
-    score: {
+    totalScore: {
       type: Number,
-      min: 0
-      // default: 0
+      min: 0,
+      default: "0"
     },
     description:{type:String
     },
-    gamesPlayed :{ type: Number
-
+    gamesPlayed:{ 
+      type: Schema.Types.ObjectId,
+      ref: "Event"
     }
   }
 );
