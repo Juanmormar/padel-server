@@ -18,6 +18,7 @@ router.get("/events", (req, res) => {
 router.get("/events/:_id", (req, res) => {
   Event.findById(req.params._id)
     .populate({ path: "participants", select: "-password" })
+    .populate({ path: "organizer", select: "-password" })
     .then((oneEvent) => {
       res.json(oneEvent);
     })
