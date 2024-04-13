@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const Event = require('../models/Event.model');
+const {isAuthenticated} = require('../middleware/jwt.middleware')
 
 router.get('/events', (req,res)=>{
     Event.find()
-    .populate("participants")
+    .populate({path: 'participants', select: '-password'})
     .then((allEvents)=>{
         res.json(allEvents)
     })
@@ -16,7 +17,7 @@ router.get('/events', (req,res)=>{
 
 router.get('/events/:_id',(req,res)=>{
     Event.findById(req.params._id)
-    .populate('participants')
+    .populate({path: 'participants', select: '-password'})
     .then((oneEvent)=>{
         res.json(oneEvent)
     })
@@ -39,6 +40,7 @@ router.post('/events', (req,res)=>{
 
 router.put('/events/:_id', (req,res)=>{
     Event.findByIdAndUpdate(req.params._id, req.body, {new:true})
+    .populate({path: 'participants', select: '-password'})
     .then((updatedEvent)=>{
         res.json(updatedEvent)
     })
@@ -47,8 +49,22 @@ router.put('/events/:_id', (req,res)=>{
     })
 });
 
+// route to join event
+router.put('/events/:_id/join', isAuthenticated, (req,res)=>{
+    Event.findByIdAndUpdate(req.params._id,{$addToSet: {participants: req.payload._id}},{new:true})
+    .populate({path: 'participants', select: '-password'})
+    .then((updatedEvent)=>{
+        res.json(updatedEvent)
+        console.log('join')
+    })
+    .catch((err)=>{
+        res.status(400).json(err, "Unable to edit event")
+    })
+});
+
+
 router.delete('/events/:_id', (req,res)=>{
-    Event.findByIdAndDelete(req.params.id)
+    Event.findByIdAndDelete(req.params._id)
     .then((deletedEvent)=>{
         res.json("Event successfully deleted")
         console.log(deletedEvent)
