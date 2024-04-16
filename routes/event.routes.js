@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Event = require("../models/Event.model");
+const User = require("../models/User.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 router.get("/events", (req, res) => {
@@ -28,18 +29,39 @@ router.get("/events/:_id", (req, res) => {
     });
 });
 
-router.post("/events", (req, res) => {
-  Event.create(req.body)
-    .then((newEvent) => {
-      res.json(newEvent);
-    })
-    .catch((err) => {
-      res
-        .status(400)
-        .json(err, "Unable to create event, fill out all compulsory fields.");
-      console.log(err);
+router.post("/events", async (req, res) => {
+  try {
+    const newEvent = await Event.create(req.body);
+    const updatedUser = await User.findByIdAndUpdate(req.body.organizer, {
+      $push: { gamesPlayed: newEvent._id },
     });
+
+    res.json(newEvent);
+  } catch (err) {
+    res
+      .status(400)
+      .json(err, "Unable to create event, fill out all compulsory fields.");
+    console.log(err);
+  }
 });
+
+// router.post("/events", (req, res) => {
+//   Event.create(req.body)
+//     .then((newEvent) => {
+//       return User.findByIdAndUpdate(req.body.organizer, {
+//         $push: { gamesPlayed: newEvent._id },
+//       });
+//     })
+//     .then((updatedUser) => {
+//       res.json(updatedUser);
+//     })
+//     .catch((err) => {
+//       res
+//         .status(400)
+//         .json(err, "Unable to create event, fill out all compulsory fields.");
+//       console.log(err);
+//     });
+// });
 
 router.put("/events/:_id", (req, res) => {
   Event.findByIdAndUpdate(req.params._id, req.body, { new: true })

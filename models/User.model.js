@@ -29,10 +29,12 @@ const userSchema = new Schema({
     default: "0",
   },
   description: { type: String },
-  gamesPlayed: {
-    type: Schema.Types.ObjectId,
-    ref: "Event",
-  },
+  gamesPlayed: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Event",
+    },
+  ],
 });
 
 const User = model("User", userSchema);
