@@ -1,4 +1,7 @@
 const { Schema, model } = require("mongoose");
+const express = require('express');
+const app = express();
+app.use(express.static('public'));
 
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
 const userSchema = new Schema({
@@ -22,7 +25,7 @@ const userSchema = new Schema({
   profilePhoto: {
     type: String,
     default:
-      "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg",
+      "/UserPhoto1.png",
   },
   totalScore: {
     type: Number,
