@@ -74,6 +74,36 @@ router.put("/events/:_id", (req, res) => {
     });
 });
 
+router.put("/events/:_id/results", async (req, res) => {
+  console.log("recBody", req.body);
+  try {
+    const updatedEvent = await Event.findByIdAndUpdate(req.params._id, { results: req.body }, { new: true });
+    console.log(updatedEvent);
+    // Update totalScore for each user
+    req.body.map(async (element) => {
+      console.log("Updating user", element.player, "with score", element.score);
+      await User.findByIdAndUpdate(element.player, { $inc: { totalScore: element.score } });
+    });
+    res.status(200).json({ message: 'Results updated successfully' });
+  } catch (error) {
+    console.error('Error updating results:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+
+// router.put("/events/:_id/results", async (req,res)=>{
+//   console.log("recBody",req.body)
+//   const updatedEvent = await Event.findByIdAndUpdate(req.params._id, {results:req.body}, {new:true})
+//   req.body.map(async(element)=> {
+//      await User.findByIdAndUpdate(element.player,{totalScore:element.score})
+//    })
+//    res.json("Success")
+// })
+
 // route to join event
 router.put("/events/:_id/join", isAuthenticated, (req, res) => {
   Event.findByIdAndUpdate(
