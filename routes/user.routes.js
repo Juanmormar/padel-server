@@ -30,10 +30,17 @@ router.get("/users/:_id", (req, res) => {
 });
 
 router.post("/users", (req, res) => {
-  User.create(req.body)
-    .then((newUser) => {
-      res.json(newUser);
-    })
+  const { email, username, name, password, imageUrl } = req.body;
+  User.create({
+    email,
+    username,
+    name,
+    password,
+    profilePhoto: imageUrl || "/UserPhoto1.png"  // Fallback to default if no URL
+  })
+  .then((newUser) => {
+    res.json(newUser);
+  })
     .catch((err) => {
       res
         .status(400)
@@ -66,6 +73,13 @@ router.put("/users/:_id", (req, res) => {
     .catch((err) => {
       res.status(400).json(err, "Unable to edit user");
     });
+});
+
+router.put("/users/:_id/photo", (req, res) => {
+  const { profilePhoto } = req.body;
+  User.findByIdAndUpdate(req.params._id, { profilePhoto }, { new: true })
+    .then(updatedUser => res.json(updatedUser))
+    .catch(err => res.status(400).json({ message: "Failed to update user profile photo", error: err }));
 });
 
 router.delete("/users/:_id", (req, res) => {
