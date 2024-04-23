@@ -21,7 +21,10 @@ const userSchema = new Schema({
     unique: true,
     required: [true, "Username is required."],
   },
-  name: { type: String },
+  
+  name: { type: String,
+  required:[true, "Name is required."] 
+},
   profilePhoto: {
     type: String,
     default:
