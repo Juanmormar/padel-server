@@ -10,7 +10,7 @@ const commentSchema = new Schema({
     type: Schema.Types.ObjectId, ref: "User"
   },
   profilePhoto: {
-    type: Schema.Types.ObjectId, ref: "User",
+    type: Schema.Types.String, ref: "User",
     default: "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg"
   },
   message: {
