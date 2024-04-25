@@ -35,7 +35,9 @@ const userSchema = new Schema({
     min: 0,
     default: "0",
   },
-  description: { type: String },
+  description: { type: String,
+    default:
+      "" },
   gamesPlayed: [
     {
       type: Schema.Types.ObjectId,
