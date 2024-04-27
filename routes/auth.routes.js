@@ -19,11 +19,13 @@ const saltRounds = 10;
 // POST /auth/signup  - Creates a new user in the database
 router.post("/signup", (req, res, next) => {
   const { email, password, username, name } = req.body;
-  console.log(req.body)
+  console.log(req.body);
 
   // Check if email or password or name are provided as empty strings
   if (email === "" || password === "" || username === "" || name === "") {
-    res.status(400).json({ message: "Provide email, password username and name" });
+    res
+      .status(400)
+      .json({ message: "Provide email, password username and name" });
     return;
   }
 
@@ -49,7 +51,9 @@ router.post("/signup", (req, res, next) => {
     .then((foundUser) => {
       // If the user with the same email already exists, send an error response
       if (foundUser) {
-        res.status(400).json({ message: "User already exists." });
+        res
+          .status(400)
+          .json({ message: "User already exists. Please login or sign up." });
         return;
       }
 
@@ -91,7 +95,7 @@ router.post("/login", (req, res, next) => {
     .then((foundUser) => {
       if (!foundUser) {
         // If the user is not found, send an error response
-        res.status(401).json({ message: "User not found." });
+        res.status(401).json({ message: "User not found. Please sign up." });
         return;
       }
 
@@ -115,7 +119,7 @@ router.post("/login", (req, res, next) => {
         // Send the token as the response
         res.status(200).json({ authToken: authToken });
       } else {
-        res.status(401).json({ message: "Unable to authenticate the user" });
+        res.status(401).json({ message: "Unable to authenticate the user." });
       }
     })
     .catch((err) => next(err)); // In this case, we send error handling to the error handling middleware.
