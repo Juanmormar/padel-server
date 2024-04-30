@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Comment = require('../models/Comment.model');
+const Event = require("../models/Event.model");
+
 
 router.get('/comments', (req,res)=>{
     Comment.find()
@@ -26,9 +28,13 @@ router.get('/comments/:_id',(req,res)=>{
 
 router.post('/comments', (req,res)=>{
     Comment.create(req.body)
-    .then((newComment)=>{
-        res.json(newComment)
-    })
+    .then((newComment)=>
+        Event.findByIdAndUpdate(req.body.event, {$addToSet: {comments: newComment._id}}, {new:true})
+        .populate("comments")
+    )
+    .then((commentCreated)=>
+        res.json(commentCreated)
+    )
     .catch((err)=>{
         res.status(400).json(err, "Unable to post comment, please fill in all the required fields")
     })
