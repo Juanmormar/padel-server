@@ -48,7 +48,11 @@ const eventSchema = new Schema({
   comments: [{
     type: Schema.Types.ObjectId,
     ref: "Comment"
-  }]
+  }],
+  photo:{
+    type: String,
+    default: "/PE1.png"
+  }
 });
 
 const Event = model("Event", eventSchema);
