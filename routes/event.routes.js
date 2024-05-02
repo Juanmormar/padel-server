@@ -107,18 +107,40 @@ router.put("/events/:_id/results", async (req, res) => {
 
 // route to join event
 router.put("/events/:_id/join", isAuthenticated, (req, res) => {
+  const eventId = req.params._id;
+  const userId = req.payload._id; 
   Event.findByIdAndUpdate(
-    req.params._id,
-    { $addToSet: { participants: req.payload._id } },
+    eventId,
+    { $addToSet: { participants: userId } },
     { new: true }
   )
     .populate({ path: "participants", select: "-password" })
-    .then((updatedEvent) => {
-      res.json(updatedEvent);
-      console.log("join");
+    .then(updatedEvent => {
+      
+      User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { gamesPlayed: eventId } },
+        { new: true }
+      )
+      .then(updatedUser => {
+        
+        res.json({
+          event: updatedEvent,
+          user: {
+            id: updatedUser._id,
+            gamesPlayed: updatedUser.gamesPlayed
+          }
+        });
+        console.log("User updated with new event");
+      })
+      .catch(userErr => {
+        console.error("Error updating user gamesPlayed", userErr);
+        res.status(500).json({ message: "Error updating user gamesPlayed", userErr });
+      });
     })
-    .catch((err) => {
-      res.status(400).json(err, "Unable to edit event");
+    .catch(err => {
+      console.error("Unable to edit event", err);
+      res.status(400).json({ message: "Unable to edit event", err });
     });
 });
 
