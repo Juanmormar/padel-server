@@ -40,6 +40,24 @@ router.post('/comments', (req,res)=>{
     })
 });
 
+
+router.delete('/comments/:_id', (req, res) => {
+  
+    Comment.findByIdAndDelete(req.params._id)
+        // .then((deletedComment) => {
+        //     return Event.findByIdAndUpdate(deletedComment.event, { $pull: { comments: req.params._id } }, { new: true })
+        //     .populate('comments');
+        // })
+        .then((deletedComment) => {
+            res.json({ message: 'Comment deleted successfully' });
+        })
+        .catch((err) => {
+            res.status(400).json({ error: 'Unable to delete comment', details: err.message });
+        });
+});
+
+
+
 router.put('/comments/:_id', (req,res)=>{
     Comment.findByIdAndUpdate(req.params._id, req.body, {new:true})
     .then((updatedComment)=>{
@@ -50,16 +68,7 @@ router.put('/comments/:_id', (req,res)=>{
     })
 });
 
-router.delete('/comments/:_id',(req,res)=>{
-    Comment.findByIdAndDelete(req.params._id)
-    .then((deletedComment)=>{
-        console.log(deletedComment)
-        res.json("Comment deleted successfully")
-    })
-    .catch((err)=>{
-        res.status(400).json("Unable to delete comment")    
-    })
-})
+
 
 
 module.exports = router;
