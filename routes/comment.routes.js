@@ -78,9 +78,6 @@ router.put("/comments/:_id", (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-module.exports = router;
-=======
 router.put('/comments/:_id/like', (req,res)=>{
     
     Comment.findByIdAndUpdate(req.params._id, {$addToSet: {likes: { user: req.body }}},{ new: true })
@@ -113,4 +110,3 @@ router.put('/comments/:_id/unlike', (req,res)=>{
 
 
 module.exports = router;
->>>>>>> 7b86702 (like routes)
