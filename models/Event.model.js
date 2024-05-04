@@ -23,7 +23,7 @@ const eventSchema = new Schema({
     required: true,
   },
   description: {
-    type: String,
+    type: String
   },
 
   participants: {
