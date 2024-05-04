@@ -1,6 +1,12 @@
 const { Schema, model } = require("mongoose");
 
-// TODO: Please make sure you edit the User model to whatever makes sense in this case
+
+const likeSchema = new Schema({
+  user: {
+    type: Schema.Types.Mixed,
+    ref: "User",
+  }
+});
 const commentSchema = new Schema({
   username: {
     type: String,
@@ -16,7 +22,8 @@ const commentSchema = new Schema({
   message: {
     type: String,
     required: true
-  }
+  },
+  likes: [likeSchema]
 }
 );
 

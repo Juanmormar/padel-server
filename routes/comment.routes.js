@@ -78,4 +78,35 @@ router.put("/comments/:_id", (req, res) => {
     });
 });
 
+router.put('/comments/:_id/like', (req,res)=>{
+    
+    Comment.findByIdAndUpdate(req.params._id, {$addToSet: {likes: { user: req.body }}},{ new: true })
+        .then((updatedComment) => {
+            res.json({
+                comment: updatedComment
+            })
+            console.log('comment liked successfully')
+        })
+        .catch((err)=>{
+            console.log('error liking comment', err)
+        })
+    });
+
+
+router.put('/comments/:_id/unlike', (req,res)=>{
+    
+        Comment.findByIdAndUpdate(req.params._id, {$pull: {likes: { user: req.body }}},{ new: true })
+            .then((updatedComment) => {
+                res.json({
+                    comment: updatedComment
+                })
+                console.log('comment unliked successfully')
+            })
+            .catch((err)=>{
+                console.log('error unliking comment', err)
+            })
+        });
+    
+
+
 module.exports = router;

@@ -52,7 +52,7 @@ const eventSchema = new Schema({
   photo:{
     type: String,
     default: "/PE1.png"
-  }
+  },
 });
 
 const Event = model("Event", eventSchema);
