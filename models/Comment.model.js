@@ -1,23 +1,29 @@
 const { Schema, model } = require("mongoose");
 
-// TODO: Please make sure you edit the User model to whatever makes sense in this case
+
+const likeSchema = new Schema({
+  user: {
+    type: Schema.Types.Mixed,
+    ref: "User",
+  }
+});
 const commentSchema = new Schema({
   username: {
-    type: Schema.Types.ObjectId, ref: "User",
+    type: String,
     required: [true, "Name is required."],
   },
   name: {
-    type: Schema.Types.ObjectId, ref: "User"
+    type: String
   },
   profilePhoto: {
-    type: Schema.Types.String, ref: "User",
+    type: String,
     default: "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-social-media-user-vector-default-avatar-profile-icon-social-media-user-vector-portrait-176194876.jpg"
   },
   message: {
     type: String,
     required: true
-  }
-
+  },
+  likes: [likeSchema]
 }
 );
 

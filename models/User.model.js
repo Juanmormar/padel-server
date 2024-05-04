@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 app.use(express.static('public'));
 
+
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
 const userSchema = new Schema({
   email: {
@@ -35,7 +36,9 @@ const userSchema = new Schema({
     min: 0,
     default: "0",
   },
-  description: { type: String },
+  description: { type: String,
+    default:
+      "" },
   gamesPlayed: [
     {
       type: Schema.Types.ObjectId,

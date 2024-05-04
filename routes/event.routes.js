@@ -20,6 +20,7 @@ router.get("/events/:_id", (req, res) => {
   Event.findById(req.params._id)
     .populate({ path: "participants", select: "-password" })
     .populate({ path: "organizer", select: "-password" })
+    .populate("comments")
     .then((oneEvent) => {
       res.json(oneEvent);
     })
@@ -31,6 +32,11 @@ router.get("/events/:_id", (req, res) => {
 
 router.post("/events", async (req, res) => {
   try {
+    const { name, date, description, organizer } = req.body;
+    if (!name || !date || !description || !organizer) {
+      return res.status(400).json({ message: "Please provide all required fields (name, date, description, organizer)." });
+    }
+
     const newEvent = await Event.create(req.body);
     const updatedUser = await User.findByIdAndUpdate(req.body.organizer, {
       $push: { gamesPlayed: newEvent._id },
@@ -106,20 +112,80 @@ router.put("/events/:_id/results", async (req, res) => {
 
 // route to join event
 router.put("/events/:_id/join", isAuthenticated, (req, res) => {
+  const eventId = req.params._id;
+  const userId = req.payload._id; 
   Event.findByIdAndUpdate(
-    req.params._id,
-    { $addToSet: { participants: req.payload._id } },
+    eventId,
+    { $addToSet: { participants: userId } },
     { new: true }
   )
     .populate({ path: "participants", select: "-password" })
-    .then((updatedEvent) => {
-      res.json(updatedEvent);
-      console.log("join");
+    .then(updatedEvent => {
+      
+      User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { gamesPlayed: eventId } },
+        { new: true }
+      )
+      .then(updatedUser => {
+        
+        res.json({
+          event: updatedEvent,
+          user: {
+            id: updatedUser._id,
+            gamesPlayed: updatedUser.gamesPlayed
+          }
+        });
+        console.log("User updated with new event");
+      })
+      .catch(userErr => {
+        console.error("Error updating user gamesPlayed", userErr);
+        res.status(500).json({ message: "Error updating user gamesPlayed", userErr });
+      });
     })
-    .catch((err) => {
-      res.status(400).json(err, "Unable to edit event");
+    .catch(err => {
+      console.error("Unable to edit event", err);
+      res.status(400).json({ message: "Unable to edit event", err });
     });
 });
+
+router.put("/events/:_id/leave", isAuthenticated, (req, res) => {
+  const eventId = req.params._id;
+  const userId = req.payload._id;
+  Event.findByIdAndUpdate(
+    eventId,
+    { $pull: { participants: userId } },
+    { new: true }
+  )
+  .populate({ path: "participants", select: "-password" })
+    .then(updatedEvent => {
+      
+      User.findByIdAndUpdate(
+        userId,
+        { $pull: { gamesPlayed: eventId } },
+        { new: true }
+      )
+      .then(updatedUser => {
+        
+        res.json({
+          event: updatedEvent,
+          user: {
+            id: updatedUser._id,
+            gamesPlayed: updatedUser.gamesPlayed
+          }
+        });
+        console.log("User removed from event");
+      })
+      .catch(userErr => {
+        console.error("Error updating user gamesPlayed", userErr);
+        res.status(500).json({ message: "Error updating user gamesPlayed", userErr });
+      });
+    })
+    .catch(err => {
+      console.error("Unable to remove user from event", err);
+      res.status(400).json({ message: "Unable to remove user from event", err });
+    });
+})
 
 router.delete("/events/:_id", (req, res) => {
   Event.findByIdAndDelete(req.params._id)

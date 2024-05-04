@@ -1,4 +1,8 @@
 const { Schema, model } = require("mongoose");
+const express = require('express');
+const app = express();
+app.use(express.static('public'));
+
 
 // TODO: Please make sure you edit the User model to whatever makes sense in this case
 
@@ -40,6 +44,14 @@ const eventSchema = new Schema({
   organizer: {
     type: Schema.Types.ObjectId,
     ref: "User",
+  },
+  comments: [{
+    type: Schema.Types.ObjectId,
+    ref: "Comment"
+  }],
+  photo:{
+    type: String,
+    default: "/PE1.png"
   },
 });
 

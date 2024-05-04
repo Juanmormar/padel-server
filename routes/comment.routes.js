@@ -1,59 +1,112 @@
 const express = require("express");
 const router = express.Router();
-const Comment = require('../models/Comment.model');
+const Comment = require("../models/Comment.model");
+const Event = require("../models/Event.model");
 
-router.get('/comments', (req,res)=>{
-    Comment.find()
-    .populate('username')
-    .then((allComments)=>{
-        res.json(allComments)
+router.get("/comments", (req, res) => {
+  Comment.find()
+    .populate("username")
+    .then((allComments) => {
+      res.json(allComments);
     })
-    .catch((err)=>{
-        res.status(400).json(err, "No comments found")
-    })
+    .catch((err) => {
+      res.status(400).json(err, "No comments found");
+    });
 });
 
-router.get('/comments/:_id',(req,res)=>{
-    Comment.findById(req.params._id)
-    .populate('username')
-    .then((oneComment)=>{
-        res.json(oneComment)
+router.get("/comments/:_id", (req, res) => {
+  Comment.findById(req.params._id)
+    .populate("username")
+    .then((oneComment) => {
+      res.json(oneComment);
     })
-    .catch((err)=>{
-        res.status(400).json(err, "No comment found")
-    })
+    .catch((err) => {
+      res.status(400).json(err, "No comment found");
+    });
 });
 
-router.post('/comments', (req,res)=>{
-    Comment.create(req.body)
-    .then((newComment)=>{
-        res.json(newComment)
-    })
-    .catch((err)=>{
-        res.status(400).json(err, "Unable to post comment, please fill in all the required fields")
-    })
+router.post("/comments", (req, res) => {
+  if (req.body.message === "") {
+    res.status(400).json("Please fill in a message");
+    return;
+  }
+  Comment.create(req.body)
+    .then((newComment) =>
+      Event.findByIdAndUpdate(
+        req.body.event,
+        { $addToSet: { comments: newComment._id } },
+        { new: true }
+      ).populate("comments")
+    )
+    .then((commentCreated) => res.json(commentCreated))
+    .catch((err) => {
+      res
+        .status(400)
+        .json(
+          err,
+          "Unable to post comment, please fill in all the required fields"
+        );
+    });
 });
 
-router.put('/comments/:_id', (req,res)=>{
-    Comment.findByIdAndUpdate(req.params._id, req.body, {new:true})
-    .then((updatedComment)=>{
-        res.json(updatedComment)
+router.delete("/comments/:_id", (req, res) => {
+  Comment.findByIdAndDelete(req.params._id)
+    .then((deletedComment) => {
+      return Event.findByIdAndUpdate(
+        req.body.event,
+        { $pull: { comments: req.params._id } },
+        { new: true }
+      ).populate("comments");
     })
-    .catch((err)=>{
-        res.status(400).json("Unable to edit comment")
+    .then((updatedEvent) => {
+      res.json(updatedEvent);
     })
+    .catch((err) => {
+      res
+        .status(400)
+        .json({ error: "Unable to delete comment", details: err.message });
+    });
 });
 
-router.delete('/comments/:_id',(req,res)=>{
-    Comment.findByIdAndDelete(req.params._id)
-    .then((deletedComment)=>{
-        console.log(deletedComment)
-        res.json("Comment deleted successfully")
+router.put("/comments/:_id", (req, res) => {
+  Comment.findByIdAndUpdate(req.params._id, req.body, { new: true })
+    .then((updatedComment) => {
+      res.json(updatedComment);
     })
-    .catch((err)=>{
-        res.status(400).json("Unable to delete comment")    
-    })
-})
+    .catch((err) => {
+      res.status(400).json("Unable to edit comment");
+    });
+});
+
+router.put('/comments/:_id/like', (req,res)=>{
+    
+    Comment.findByIdAndUpdate(req.params._id, {$addToSet: {likes: { user: req.body }}},{ new: true })
+        .then((updatedComment) => {
+            res.json({
+                comment: updatedComment
+            })
+            console.log('comment liked successfully')
+        })
+        .catch((err)=>{
+            console.log('error liking comment', err)
+        })
+    });
+
+
+router.put('/comments/:_id/unlike', (req,res)=>{
+    
+        Comment.findByIdAndUpdate(req.params._id, {$pull: {likes: { user: req.body }}},{ new: true })
+            .then((updatedComment) => {
+                res.json({
+                    comment: updatedComment
+                })
+                console.log('comment unliked successfully')
+            })
+            .catch((err)=>{
+                console.log('error unliking comment', err)
+            })
+        });
+    
 
 
 module.exports = router;
