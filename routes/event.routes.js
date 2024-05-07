@@ -121,6 +121,15 @@ router.put("/events/:_id/results", async (req, res) => {
 router.put("/events/:_id/join", isAuthenticated, (req, res) => {
   const eventId = req.params._id;
   const userId = req.payload._id;
+
+  Event.findById(eventId)
+  .then((fullEvent)=>{
+    if (fullEvent.participants>=8){
+      res.json({error:"Sorry Americano is full, only 8 people per Americano"})
+      return
+    }
+  })
+  
   Event.findByIdAndUpdate(
     eventId,
     { $addToSet: { participants: userId } },
